@@ -3,8 +3,8 @@ Angus Java SDK's documentation
 
 Angus Java SDK is a Java client library for `Angus.ai <http://www.angus.ai>`_ Cloud.
 
-Instalation
------------
+Installation
+------------
 
 **Automatic installation**:
 
