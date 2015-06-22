@@ -28,10 +28,12 @@ import ai.angus.sdk.Job;
 import ai.angus.sdk.ProcessException;
 import ai.angus.sdk.ResultCallBack;
 import ai.angus.sdk.Service;
+import ai.angus.sdk.Session;
 
 public class ServiceImpl extends ResourceImpl implements Service {
 
     private Collection<Job> jobs;
+    private Session         defaultSession;
 
     public ServiceImpl(URL parent, String name, Configuration conf) {
         super(parent, name, null, conf);
@@ -46,22 +48,32 @@ public class ServiceImpl extends ResourceImpl implements Service {
                 .create(this.endpoint, "jobs", new JSONObject(), conf);
     }
 
+    @Override
     public JobImpl process(JSONObject params) throws ProcessException {
-        return process(params, false, null);
+        return process(params, false, null, null);
     }
 
+    @Override
     public JobImpl process(JSONObject params, boolean async)
             throws ProcessException {
-        return process(params, async, null);
+        return process(params, async, null, null);
     }
 
+    @Override
     public JobImpl process(JSONObject params, ResultCallBack callback)
             throws ProcessException {
-        return process(params, false, callback);
+        return process(params, false, null, callback);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public JobImpl process(JSONObject params, boolean async,
+            ResultCallBack callback) throws ProcessException {
+        return process(params, false, null, callback);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public JobImpl process(JSONObject params, boolean async, Session session,
             ResultCallBack callback) throws ProcessException {
 
         if (!params.containsKey("image")) {
@@ -69,9 +81,38 @@ public class ServiceImpl extends ResourceImpl implements Service {
         }
         params = new JSONObject(params);
         params.put("async", async);
+
+        if (session == null) {
+            session = this.defaultSession;
+        }
+
+        if (session != null) {
+            params.put("state", session.getState());
+        }
+
         JobImpl job = (JobImpl) jobs.create(params, conf.getFactoryRepository()
                 .getJobFactory());
 
         return job;
     }
+
+    @Override
+    public Session createSession() {
+        Session session = new SessionImpl(this);
+        return session;
+    }
+
+    @Override
+    public void enableSession() {
+        if (this.defaultSession == null) {
+            this.defaultSession = this.createSession();
+        }
+
+    }
+
+    @Override
+    public void disableSession() {
+        this.defaultSession = null;
+    }
+
 }

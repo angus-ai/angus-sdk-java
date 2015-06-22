@@ -31,6 +31,15 @@ public interface Service extends Resource {
     public JobImpl process(JSONObject params, ResultCallBack callback)
             throws ProcessException;
 
+    public JobImpl process(JSONObject params, boolean async, Session session,
+            ResultCallBack callback) throws ProcessException;
+
     public JobImpl process(JSONObject params, boolean async,
             ResultCallBack callback) throws ProcessException;
+
+    public Session createSession();
+
+    public void enableSession();
+
+    public void disableSession();
 }
