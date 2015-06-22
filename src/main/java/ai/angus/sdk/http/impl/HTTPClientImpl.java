@@ -30,7 +30,6 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,6 +40,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.DatatypeConverter;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -55,8 +55,8 @@ public class HTTPClientImpl implements HTTPClient {
     public HTTPClientImpl(Configuration conf) {
         try {
             String auth = conf.getClientId() + ":" + conf.getAccessToken();
-            auth64 = new String(Base64.getEncoder().encode(auth.getBytes()));
-
+            auth64 = DatatypeConverter
+                    .printBase64Binary(auth.getBytes("UTF-8"));
             initSSLSocketFactory(conf);
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,12 +92,14 @@ public class HTTPClientImpl implements HTTPClient {
         sslFactory = ctx.getSocketFactory();
     }
 
+    @Override
     public JSONObject get(URL url, Map<String, String> filters)
             throws IOException {
         // TODO currently no filters
         return this.get(url);
     }
 
+    @Override
     public JSONObject get(URL url) throws IOException {
         HttpURLConnection connection = null;
 
@@ -135,6 +137,7 @@ public class HTTPClientImpl implements HTTPClient {
         return buffer.toString();
     }
 
+    @Override
     public JSONObject post(URL url, byte[] params, Map<String, File> files)
             throws IOException {
         String boundary = generateBoundary();
