@@ -132,7 +132,7 @@ public class SessionTest {
         FakeCamera camera = new FakeCamera("data/video1");
         while (camera.hasNext()) {
             JSONObject parameters = new JSONObject();
-            parameters.put("image", camera.next());
+            parameters.put("image", new File(camera.next()));
             Job job = service.process(parameters, false, callback1);
             checkResultEventually(job, 1);
         }
