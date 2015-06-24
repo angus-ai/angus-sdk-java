@@ -39,7 +39,6 @@ public class SessionTest {
     private static Root root;
     private static Service service;
     private static CheckResult callback1, callback3, callback43;
-    private static Resource image;
     private static String IMG_1 = "data/Angus-6.jpg";
 
     @BeforeClass
@@ -58,41 +57,30 @@ public class SessionTest {
             e.printStackTrace();
             fail();
         }
-        callback1 = new CheckResult(1);
-        callback3 = new CheckResult(3);
-        callback43 = new CheckResult(43);
-
-        image = root.getBlobs().create(new File(IMG_1));
     }
 
     private static class CheckResult implements ResultCallBack {
-        private int howmany;
-
-        public CheckResult(int howmany) {
-            this.howmany = howmany;
+        public CheckResult() {
         }
 
         @Override
         public void callback(Job result) {
-            SessionTest.checkResult(result, howmany);
+            SessionTest.checkResult(result);
         }
     }
 
-    private static void checkResult(Job result, int howmany) {
+    private static void checkResult(Job result) {
         assertEquals(result.getStatus(), Resource.CREATED);
         assertEquals(result.getRepresentation(), result.getResult());
         assertTrue(result.getRepresentation().containsKey("faces"));
 
-        double min = Math.ceil(0.5 * howmany);
-        double max = Math.floor(1.5 * howmany);
 
         int size = ((JSONArray) result.getRepresentation().get("faces")).size();
-        assertTrue(size >= min);
-        assertTrue(size <= max);
-
+        assertTrue(size >= 0);
+        assertTrue(size <= 1);
     }
 
-    private static void checkResultEventually(Job result, int howmany) {
+    private static void checkResultEventually(Job result) {
         if (result.getStatus() == Resource.ACCEPTED) {
             try {
                 Thread.sleep(10 * 1000);
@@ -106,7 +94,7 @@ public class SessionTest {
                 fail();
             }
         }
-        checkResult(result, howmany);
+        checkResult(result);
     }
 
     @Test
@@ -134,11 +122,8 @@ public class SessionTest {
             JSONObject parameters = new JSONObject();
             parameters.put("image", new File(camera.next()));
             Job job = service.process(parameters, false, callback1);
-            checkResultEventually(job, 1);
+            checkResultEventually(job);
         }
         service.disableSession();
-
     }
-
-
 }
