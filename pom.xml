@@ -4,7 +4,7 @@
   <groupId>ai.angus.sdk</groupId>
   <artifactId>angus-sdk-java</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <name>angus-sdk-java</name>
   <dependencies>
     <dependency>
