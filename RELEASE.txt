@@ -1,0 +1,8 @@
+Angus java SDK - Release Note 0.0.2
+===================================
+
+Features added
+--------------
+
+* It is now possible to call multiple services in one call.
+* It is now possible to make multiple calls inside a session.
