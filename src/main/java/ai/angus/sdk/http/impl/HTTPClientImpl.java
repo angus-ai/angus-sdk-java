@@ -31,10 +31,15 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -52,6 +57,8 @@ public class HTTPClientImpl implements HTTPClient {
     private SSLSocketFactory sslFactory;
     private String auth64;
 
+    private ExecutorService  executors;
+
     public HTTPClientImpl(Configuration conf) {
         try {
             String auth = conf.getClientId() + ":" + conf.getAccessToken();
@@ -61,6 +68,9 @@ public class HTTPClientImpl implements HTTPClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        executors = Executors.newFixedThreadPool(6);
+
     }
 
     private void initSSLSocketFactory(Configuration conf) throws Exception {
@@ -177,9 +187,39 @@ public class HTTPClientImpl implements HTTPClient {
         os.flush();
         os.close();
 
+
         InputStream is = connection.getInputStream();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
         JSONObject result = (JSONObject) JSONValue.parse(rd);
         return result;
+    }
+
+    @Override
+    public JSONObject post(URL url, byte[] params) throws IOException {
+        return this.post(url, params, new HashMap<String, File>());
+    }
+
+    private class Post implements Callable<JSONObject> {
+
+        private URL               url;
+        private byte[]            params;
+        private Map<String, File> files;
+
+        public Post(URL url, byte[] params, Map<String, File> files) {
+            this.url = url;
+            this.params = params;
+            this.files = files;
+        }
+
+        @Override
+        public JSONObject call() throws Exception {
+            return HTTPClientImpl.this.post(this.url, this.params, this.files);
+        }
+    }
+
+    @Override
+    public Future<JSONObject> nbPost(URL url, byte[] params) {
+        return this.executors
+                .submit(new Post(url, params, new HashMap<String, File>()));
     }
 }

@@ -19,7 +19,16 @@
 package ai.angus.sdk;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface Services extends Collection<Service> {
     public Service getService(String name, int version) throws IOException;
+
+    public Service getService(String name) throws IOException;
+
+    public Service getServices(java.util.Collection<String> services);
+
+    public Service getServices(Map<String, Integer> services);
+
+    public Service getServices();
 }

@@ -20,7 +20,9 @@ package ai.angus.sdk.impl;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
@@ -39,8 +41,17 @@ public class GenericService extends CollectionImpl {
         filters.put("version", Integer.toString(version));
         JSONObject result = this.list(filters);
 
-        JSONObject description = ((JSONObject) ((JSONObject) result
-                .get("versions")).get(Integer.toString(version)));
+        JSONObject versions = ((JSONObject) result.get("versions"));
+
+        JSONObject description;
+
+        if(version < 0) {
+            List<String> toSort = new ArrayList<String>(versions.keySet());
+            java.util.Collections.sort(toSort);
+            version = Integer.parseInt(toSort.get(toSort.size() - 1));
+        }
+
+        description = (JSONObject) versions.get(Integer.toString(version));
 
         return this.conf.getFactoryRepository().getServiceFactory()
                 .create(this.endpoint, (String) description.get("url"), conf);

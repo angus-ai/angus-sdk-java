@@ -34,9 +34,9 @@ public interface Configuration {
 
     public void setAccessToken(String accessToken);
 
-    public String getDefaultRoot();
+    public URL getDefaultRoot();
 
-    public void setDefaultRoot(String defaultRoot);
+    public void setDefaultRoot(URL defaultRoot);
 
     public String getCaPath();
 

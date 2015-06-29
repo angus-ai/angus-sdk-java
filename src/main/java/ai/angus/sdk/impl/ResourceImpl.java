@@ -49,7 +49,9 @@ public class ResourceImpl implements JSONAware, Resource {
 
         try {
             URL base;
-            if (!parent.toString().endsWith("/")) {
+            if (parent == null) {
+                base = null;
+            } else if (!parent.toString().endsWith("/")) {
                 base = new URL(parent.toString() + "/");
             } else {
                 base = parent;
@@ -60,15 +62,18 @@ public class ResourceImpl implements JSONAware, Resource {
         }
     }
 
+    @Override
     public JSONObject getRepresentation() {
         return representation;
     }
 
+    @Override
     public void fetch() throws IOException {
         JSONObject result = conf.getHTTPClient().get(endpoint);
         representation = result;
     }
 
+    @Override
     public int getStatus() {
         if (representation.containsKey("status")) {
             int status = ((Long) representation.get("status")).intValue();
@@ -84,7 +89,13 @@ public class ResourceImpl implements JSONAware, Resource {
         return "\"" + endpoint + "\"";
     }
 
+    @Override
     public URL getURL() {
         return endpoint;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

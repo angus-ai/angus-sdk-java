@@ -34,4 +34,5 @@ public interface FactoryRepository {
     public <T extends Resource> ResourceFactory<Collection<T>> getCollectionFactory();
 
     public ResourceFactory<Root> getRootFactory();
+
 }

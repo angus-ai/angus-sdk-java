@@ -121,14 +121,14 @@ public class FactoryRepositoryImpl implements FactoryRepository {
         ROOT_FACT = new ResourceFactory<Root>() {
 
             @Override
-            public Root create(URL parent, String name, JSONObject content,
+            public Root create(URL endpoint, String name, JSONObject content,
                     Configuration conf) {
-                return new RootImpl(parent, name, conf);
+                return new RootImpl(endpoint, conf);
             }
 
             @Override
-            public Root create(URL parent, String name, Configuration conf) {
-                return new RootImpl(parent, name, conf);
+            public Root create(URL endpoint, String name, Configuration conf) {
+                return new RootImpl(endpoint, conf);
             }
 
         };

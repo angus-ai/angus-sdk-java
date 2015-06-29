@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributors:
  *     Aurélien Moreau
  */
@@ -25,8 +25,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,15 +37,15 @@ import org.junit.Test;
 import ai.angus.sdk.impl.ConfigurationImpl;
 import ai.angus.sdk.impl.File;
 
-public class FaceDetectionTest {
+public class CompositeTest {
 
     private static Root root;
-    private static Service service;
-    private static CheckResult callback1, callback3, callback43;
+    private static Service     services;
+    private static Service     selectedServices;
+    private static Service     selectedVersionServices;
+    private static CheckResult callback1;
     private static Resource image;
     private static String IMG_1 = "data/Angus-6.jpg";
-    private static String IMG_3 = "data/Angus-24.jpg";
-    private static String IMG_LARGE = "data/large.jpg";
 
     @BeforeClass
     public static void setUp() {
@@ -54,15 +57,21 @@ public class FaceDetectionTest {
             fail();
         }
         assertNotNull(root);
-        try {
-            service = root.getServices().getService("face_detection", 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail();
-        }
+
+        services = root.getServices().getServices();
+
+        List<String> list = new ArrayList<String>();
+        list.add("face_detection");
+        list.add("dummy");
+        selectedServices = root.getServices().getServices(list);
+
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("face_detection", 1);
+        map.put("dummy", 1);
+
+        selectedVersionServices = root.getServices().getServices(map);
+
         callback1 = new CheckResult(1);
-        callback3 = new CheckResult(3);
-        callback43 = new CheckResult(43);
 
         image = root.getBlobs().create(new File(IMG_1));
     }
@@ -76,22 +85,14 @@ public class FaceDetectionTest {
 
         @Override
         public void callback(Job result) {
-            FaceDetectionTest.checkResult(result, howmany);
+            CompositeTest.checkResult(result, howmany);
         }
     }
 
     private static void checkResult(Job result, int howmany) {
-        assertEquals(result.getStatus(), Resource.CREATED);
+        assertEquals(result.getStatus(), 200);
         assertEquals(result.getRepresentation(), result.getResult());
-        assertTrue(result.getRepresentation().containsKey("faces"));
-
-        double min = Math.ceil(0.5 * howmany);
-        double max = Math.floor(1.5 * howmany);
-
-        int size = ((JSONArray) result.getRepresentation().get("faces")).size();
-        assertTrue(size >= min);
-        assertTrue(size <= max);
-
+        assertTrue(result.getRepresentation().containsKey("composite"));
     }
 
     private static void checkResultEventually(Job result, int howmany) {
@@ -132,7 +133,7 @@ public class FaceDetectionTest {
     public void embededSync() throws Exception {
         JSONObject parameters = new JSONObject();
         parameters.put("image", new File(IMG_1));
-        Job job = service.process(parameters, false, callback1);
+        Job job = services.process(parameters, false, callback1);
         checkResultEventually(job, 1);
     }
 
@@ -141,18 +142,9 @@ public class FaceDetectionTest {
     public void embededDefault() throws Exception {
         JSONObject parameters = new JSONObject();
         parameters.put("image", new File(IMG_1));
-        Job job = service.process(parameters, callback1);
+        Job job = services.process(parameters, callback1);
         checkResultEventually(job, 1);
 
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void embededSync3() throws Exception {
-        JSONObject parameters = new JSONObject();
-        parameters.put("image", new File(IMG_3));
-        Job job = service.process(parameters, false, callback3);
-        checkResultEventually(job, 3);
     }
 
     @SuppressWarnings("unchecked")
@@ -160,7 +152,7 @@ public class FaceDetectionTest {
     public void hrefSync() throws Exception {
         JSONObject parameters = new JSONObject();
         parameters.put("image", image);
-        Job job = service.process(parameters, false, callback1);
+        Job job = services.process(parameters, false, callback1);
         checkResultEventually(job, 1);
     }
 
@@ -169,17 +161,8 @@ public class FaceDetectionTest {
     public void embededAsync() throws Exception {
         JSONObject parameters = new JSONObject();
         parameters.put("image", new File(IMG_1));
-        Job job = service.process(parameters, true, callback1);
+        Job job = services.process(parameters, true, callback1);
         checkResultEventually(job, 1);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void embededAsyncLarge() throws Exception {
-        JSONObject parameters = new JSONObject();
-        parameters.put("image", new File(IMG_LARGE));
-        Job job = service.process(parameters, true, callback43);
-        checkResultEventually(job, 43);
     }
 
     @SuppressWarnings("unchecked")
@@ -187,7 +170,7 @@ public class FaceDetectionTest {
     public void hrefAsync() throws Exception {
         JSONObject parameters = new JSONObject();
         parameters.put("image", image);
-        Job job = service.process(parameters, true, callback1);
+        Job job = services.process(parameters, true, callback1);
         checkResultEventually(job, 1);
     }
 

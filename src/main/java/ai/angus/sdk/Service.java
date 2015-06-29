@@ -20,21 +20,22 @@ package ai.angus.sdk;
 
 import org.json.simple.JSONObject;
 
-import ai.angus.sdk.impl.JobImpl;
-
 public interface Service extends Resource {
+
+    public Collection<Job> getJobs();
+
     public Job process(JSONObject params) throws ProcessException;
 
-    public JobImpl process(JSONObject params, boolean async)
+    public Job process(JSONObject params, boolean async)
             throws ProcessException;
 
-    public JobImpl process(JSONObject params, ResultCallBack callback)
+    public Job process(JSONObject params, ResultCallBack callback)
             throws ProcessException;
 
-    public JobImpl process(JSONObject params, boolean async, Session session,
+    public Job process(JSONObject params, boolean async, Session session,
             ResultCallBack callback) throws ProcessException;
 
-    public JobImpl process(JSONObject params, boolean async,
+    public Job process(JSONObject params, boolean async,
             ResultCallBack callback) throws ProcessException;
 
     public Session createSession();

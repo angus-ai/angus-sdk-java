@@ -33,7 +33,7 @@ import ai.angus.sdk.Session;
 public class ServiceImpl extends ResourceImpl implements Service {
 
     private Collection<Job> jobs;
-    private Session         defaultSession;
+    protected Session       defaultSession;
 
     public ServiceImpl(URL parent, String name, Configuration conf) {
         super(parent, name, null, conf);
@@ -49,31 +49,31 @@ public class ServiceImpl extends ResourceImpl implements Service {
     }
 
     @Override
-    public JobImpl process(JSONObject params) throws ProcessException {
+    public Job process(JSONObject params) throws ProcessException {
         return process(params, false, null, null);
     }
 
     @Override
-    public JobImpl process(JSONObject params, boolean async)
+    public Job process(JSONObject params, boolean async)
             throws ProcessException {
         return process(params, async, null, null);
     }
 
     @Override
-    public JobImpl process(JSONObject params, ResultCallBack callback)
+    public Job process(JSONObject params, ResultCallBack callback)
             throws ProcessException {
         return process(params, false, null, callback);
     }
 
     @Override
-    public JobImpl process(JSONObject params, boolean async,
+    public Job process(JSONObject params, boolean async,
             ResultCallBack callback) throws ProcessException {
         return process(params, false, null, callback);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public JobImpl process(JSONObject params, boolean async, Session session,
+    public Job process(JSONObject params, boolean async, Session session,
             ResultCallBack callback) throws ProcessException {
 
         if (!params.containsKey("image")) {
@@ -113,6 +113,11 @@ public class ServiceImpl extends ResourceImpl implements Service {
     @Override
     public void disableSession() {
         this.defaultSession = null;
+    }
+
+    @Override
+    public Collection<Job> getJobs() {
+        return jobs;
     }
 
 }

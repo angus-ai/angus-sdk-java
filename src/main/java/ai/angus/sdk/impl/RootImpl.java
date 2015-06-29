@@ -22,28 +22,38 @@ import java.net.URL;
 
 import ai.angus.sdk.Blobs;
 import ai.angus.sdk.Configuration;
+import ai.angus.sdk.Resource;
 import ai.angus.sdk.Root;
 import ai.angus.sdk.Services;
 
-public class RootImpl extends CollectionImpl implements Root {
+public class RootImpl extends CollectionImpl<Resource> implements Root {
 
     private Services services;
     private Blobs blobs;
 
-    public RootImpl(URL endpoint, String name, Configuration conf) {
-        super(endpoint, name, conf);
+    public RootImpl(Configuration conf) {
+        this(conf.getDefaultRoot(), conf);
+    }
+
+    public RootImpl(URL endpoint, Configuration conf) {
+        super(null, endpoint.toString(), conf);
+
+        conf.setDefaultRoot(endpoint);
 
         services = conf.getFactoryRepository().getServicesFactory()
                 .create(this.endpoint, "services", conf);
 
         blobs = conf.getFactoryRepository().getBlobsFactory()
                 .create(this.endpoint, "blobs", conf);
+
     }
 
+    @Override
     public Services getServices() {
         return services;
     }
 
+    @Override
     public Blobs getBlobs() {
         return blobs;
     }

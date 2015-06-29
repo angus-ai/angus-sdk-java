@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.json.simple.JSONObject;
 
@@ -33,4 +34,8 @@ public interface HTTPClient {
 
     public JSONObject post(URL url, byte[] params, Map<String, File> files)
             throws IOException;
+
+    public JSONObject post(URL url, byte[] params) throws IOException;
+
+    public Future<JSONObject> nbPost(URL url, byte[] params);
 }

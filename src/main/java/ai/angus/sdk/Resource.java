@@ -28,6 +28,8 @@ public interface Resource extends JSONAware {
     public static final int CREATED = 201;
     public static final int ACCEPTED = 202;
 
+    public String getName();
+
     public URL getURL();
 
     public int getStatus();

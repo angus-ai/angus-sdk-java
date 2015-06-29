@@ -39,7 +39,7 @@ public class ConfigurationImpl implements Configuration {
     private static FactoryRepository REPOSITORY = new FactoryRepositoryImpl();
 
     private String accessToken;
-    private String defaultRoot;
+    private URL                      defaultRoot;
     private String caPath;
     private String clientId;
 
@@ -49,7 +49,7 @@ public class ConfigurationImpl implements Configuration {
         this(new File(System.getProperty("user.home"), ".angusdk/config.json"));
     }
 
-    public ConfigurationImpl(String accessToken, String defaultRoot,
+    public ConfigurationImpl(String accessToken, URL defaultRoot,
             String caPath, String clientId) {
         this.accessToken = accessToken;
         this.defaultRoot = defaultRoot;
@@ -64,7 +64,7 @@ public class ConfigurationImpl implements Configuration {
             JSONObject conf = (JSONObject) parser.parse(new FileReader(
                     configurationFile));
             accessToken = (String) conf.get("access_token");
-            defaultRoot = (String) conf.get("default_root");
+            defaultRoot = new URL((String) conf.get("default_root"));
             caPath = (String) conf.get("ca_path");
             clientId = (String) conf.get("client_id");
             this.client = new HTTPClientImpl(this);
@@ -85,7 +85,8 @@ public class ConfigurationImpl implements Configuration {
     @Override
     public Root connect() throws IOException {
         return getFactoryRepository().getRootFactory().create(
-                new URL(this.defaultRoot), "", this);
+                this.defaultRoot,
+                "", this);
     }
 
     @Override
@@ -93,38 +94,47 @@ public class ConfigurationImpl implements Configuration {
         return getFactoryRepository().getRootFactory().create(url, "", this);
     }
 
+    @Override
     public String getAccessToken() {
         return accessToken;
     }
 
+    @Override
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
 
-    public String getDefaultRoot() {
+    @Override
+    public URL getDefaultRoot() {
         return defaultRoot;
     }
 
-    public void setDefaultRoot(String defaultRoot) {
+    @Override
+    public void setDefaultRoot(URL defaultRoot) {
         this.defaultRoot = defaultRoot;
     }
 
+    @Override
     public String getCaPath() {
         return caPath;
     }
 
+    @Override
     public void setCaPath(String caPath) {
         this.caPath = caPath;
     }
 
+    @Override
     public String getClientId() {
         return clientId;
     }
 
+    @Override
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
+    @Override
     public HTTPClient getHTTPClient() {
         return client;
     }
